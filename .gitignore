@@ -1,0 +1,41 @@
+.env
+.env.local
+.env.*.local
+CLAUDE.local.md
+
+# 管理ディレクトリ（ローカル運用のみ）
+TASKS/
+DEBUG/
+CLIENT/
+WORK/
+ENV/
+DELETE/
+.claude/
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.venv/
+venv/
+dist/
+*.egg-info/
+
+# Node.js
+node_modules/
+.next/
+out/
+npm-debug.log*
+
+# SQLite
+*.db
+*.sqlite3
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
