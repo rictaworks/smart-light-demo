@@ -148,8 +148,9 @@ export default function Dashboard() {
 
   async function handleReset() {
     try {
+      // ポーリングを止めるために ready を false にする
+      setReady(false);
       await api.resetDb();
-      // セッション削除後に新規セッションを作成して初期状態に戻す
       await api.createSession();
       const [dash, energy, cfg] = await Promise.all([
         api.getLight(),
@@ -159,6 +160,7 @@ export default function Dashboard() {
       setData(dash);
       setEnergyLogs(energy.logs);
       setSettings(cfg);
+      setReady(true);
     } catch (e) {
       setError(String(e));
     }
