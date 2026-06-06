@@ -1,190 +1,142 @@
-# Claude Safety Rules
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+---
 
 ## 削除系コマンドの禁止（重要）
-
-以下のルールはこのワークスペース内のすべての会話で絶対に守られる：
 
 - Claude はファイルまたはディレクトリを削除するコマンドを一切生成してはならない。
   例：rm, rm -rf, rm *, rmdir, unlink, cache --delete,
       lftp mirror --delete, rsync --delete, git clean -df, find -delete 等。
-
-- 削除が必要な場合でも、Claude は削除コマンドを提案せず、
-  「手動で削除してください」といった説明に留めること。
-
-- 削除の推奨・削除操作の自動判断も禁止。
-
-- ssh / lftp / デプロイ系スクリプトを生成する場合でも、
-  削除コマンドの生成は禁止。
-
-これらはすべての会話・コード生成に適用される。
+- 削除が必要な場合は「手動で削除してください」といった説明に留めること。
+- ssh / lftp / デプロイ系スクリプトを生成する場合でも削除コマンドの生成は禁止。
 
 ---
 
-# プロジェクト開発ルール
+## プロジェクト概要
 
-## README.md の必須記載事項
+IoT 照明シミュレーターのデモアプリ。
 
-README.md には以下をもれなく記載すること：
-- 自動ログイン手順（開発環境での認証スキップ方法）
-- ページ一覧：ページ名・URL（リンク）
-- API 一覧（SPEC/ および apiリンク）：タイトル・エンドポイント URL
-
-## TDD（テスト駆動開発）
-
-**厳守する順序：plan → red test → coding → green test**
-
-- バックエンド：RSpec
-- フロントエンド：Jest
-- フロントエンドの動作確認：curl / `wget --mirror` / Playwright を使うこと
-- デフォルトアイコン：Font Awesome を使用すること（絵文字禁止）
-- 環境変数は必ず `.env` を参照すること
-- 実装前に `DC.md` / `QC10.md` / `TM.md` / `OWASP10.md` を参照すること
-- commit 前に必ず security review を実行すること（`/security-review`）
-
-## ブランチ・PR ルール
-
-- **main ブランチでの作業禁止**
-- `src/*` 以外の変更は main ブランチへの直接 push を許可する
-- `src/*` の変更は必ず PR を作成すること
-- PR 本文には非エンジニア向けユーザーテスト手順を丁寧に書くこと
-
-## エージェント構成（規模に応じて作成）
-
-プロジェクトの規模に応じて `.claude/agents/` に以下を作成する：
-
-| エージェント | 役割 |
-|---|---|
-| director | 全体方針・意思決定 |
-| project-manager | タスク管理・進捗管理 |
-| designer | UI/UX 設計・AI 画像生成 |
-| debugger | バグ調査・原因特定 |
-| tester | テスト作成・実行 |
-| data-scientist | データ分析・統計 |
-| deployer | デプロイ・インフラ |
-| writer | コピーライティング・ドキュメント |
-| service-manager | サービス運用・監視 |
-
-## ディレクトリ管理
-
-| ディレクトリ | 用途 |
-|---|---|
-| `TASKS/` | タスク管理 |
-| `DEBUG/` | バグ報告 |
-| `CLIENT/` | クライアント要望 |
-| `WORK/` | 作業報告 |
-| `ENV/DEVELOPMENT.md` | 開発環境情報 |
-| `ENV/PRODUCTION.md` | 本番環境情報 |
-| `SPEC/` | 仕様書・リバースエンジニアリング図（ER図・DFD・シーケンス図・クラス図・状態遷移図・ユースケース図） |
-| `DELETE/` | ゴミ箱（手動移動のみ） |
-
-図解は Mermaid を使用すること。
-
-## 例外処理・フォールバック禁止
-
-- フォールバック処理は禁止する
-- 例外処理（try/catch、エラーハンドリング）をしっかり実装すること
-- サイレントな失敗は許可しない
-
-## デバッグトレーサビリティ
-
-- コードはデバッグトレースできるように書くこと
-- ログ出力・エラーコンテキストを必ず含めること
-
-## コード構造ルール
-
-- 制御構文・条件構文以外はすべてクラスまたは関数に書くこと
-- グローバル変数禁止（セキュリティ観点）
-- 文字列リテラルは設定ファイルに分離すること
-
-## ネイティブダイアログ禁止
-
-プロジェクト全体で `alert()` / `confirm()` / `prompt()` は一切使用禁止。
+- **フロントエンド**: Next.js 14 (TypeScript) → Vercel (`smart-light-demo.rictaworks.jp`)
+- **バックエンド**: FastAPI + SQLite → Railway
+- **セッション**: Cookie (`session_id`) による UUID ベースの匿名セッション
+- Vercel は GitHub 未連携のため、デプロイは `frontend/` 内で `vercel --prod --yes` を手動実行する
 
 ---
 
-# 自社開発ルール
+## コマンド
 
-## 画像・ライティング
+### バックエンド
 
-- 画像は AI 生成を使用すること
-- コピーライティングはライターエージェントに担当させること
+```bash
+# 依存インストール
+pip install -r requirements.txt
+
+# 開発サーバー起動（プロジェクトルートから）
+uvicorn backend.main:app --reload
+
+# テスト（全件）
+pytest test/backend/
+
+# テスト（単一ファイル）
+pytest test/backend/test_api.py
+
+# テスト（単一ケース）
+pytest test/backend/test_api.py::test_create_session
+```
+
+### フロントエンド
+
+```bash
+cd frontend
+
+# 開発サーバー
+npm run dev
+
+# ビルド
+npm run build
+
+# テスト（全件）
+npm test
+
+# テスト（ウォッチモード）
+npm run test:watch
+
+# 本番デプロイ（Vercel 手動）
+vercel --prod --yes
+```
+
+---
 
 ## アーキテクチャ
 
-規模に応じて以下を意識すること：
-- マイクロサービスアーキテクチャ
-- MVC アーキテクチャ
-- API Gateway
-- メッセージング
+### セッション管理の二重構造
 
-## ライブラリ・フレームワーク選定方針
-
-- メンテナンスコストとセキュリティの観点から、安全なライブラリ・フレームワーク・OSS・SaaS を適用すること
-- 車輪の再発明を避け、オリジナルコードを少なく保つこと
-
-## 基本技術スタック
+リクエストごとに **DB（SessionRepository）** と **インメモリ状態（StateManager）** の両方を持つ。
 
 ```
-フロントエンド : Next.js (TypeScript)
-バックエンド   : Ruby on Rails
-DB            : PostgreSQL
-※必要に応じて:
-  AI・解析・画像加工 → FastAPI
-  高速並列処理・リアルタイム通信 → Gin (Go)
+Cookie(session_id)
+    ↓
+SessionRepository  ← SQLite（永続化）
+    ↓ settings / light_state を読み込み
+StateManager
+    └── SessionState  ← asyncio.Task でデバウンス・待機タイマーを保持
+          ├── SensorService（センサー状態集約）
+          ├── LightController（照明状態・輝度計算）
+          ├── EnergyCalculator（省エネ計算）
+          └── ScheduleChecker（消灯スケジュール判定）
 ```
 
-> このプロジェクト（デモ版）は Next.js + FastAPI + SQLite 構成。MVP 以降で上記スタックに移行。
+- Railway 再起動時にインメモリ状態は消える。`POST /api/session` がアクセスのたびに DB から状態を復元する。
+- `StateManager.remove()` はタスクをキャンセルしてからエントリを削除する。
 
-## デプロイ先（原則）
+### センサー → 照明制御フロー
 
-| 対象 | サービス |
-|---|---|
-| フロントエンド | Vercel（無料プラン） |
-| バックエンド・管理画面 | Render または Railway（無料プラン） |
-| 認証 | Google ログイン |
+1. `POST /api/sensor` → `SessionState.process_sensor_update()`
+2. センサーの集約状態が変化した場合のみ、`_debounce_sec` 秒待機するデバウンスタスクを起動
+3. デバウンス完了 → `_apply_light_control()`
+   - 手動モードなら何もしない
+   - 消灯スケジュール中なら消灯
+   - 人検知あり → 即時点灯、待機タイマーキャンセル
+   - 人検知なし → `_wait_sec` 秒後に消灯するタスクを起動（既存タスクがあればスキップ）
 
-## ドメイン
+### DB スキーマ
 
-原則として `rictaworks.jp` のサブドメインを使用する。
+`backend/db/schema.sql` に `CREATE TABLE IF NOT EXISTS` で定義。
+主要テーブル: `sessions`, `settings`, `light_states`, `sensor_logs`, `energy_logs`
 
-## 文字列リテラル管理
+`SessionRepository` がすべての DB 操作をカプセル化し、コネクションは使用ごとに open/close する（SQLite の並行書き込みを避けるため WAL モード使用）。
 
-- 文字列リテラルはファイルまたはデータベースに分離すること
-- ハードコードが残っていないかチェックするテストを書くこと
+### フロントエンド状態更新
 
-## 多言語対応（i18n）
+`pages/index.tsx` の `handleReset()` はポーリングの競合を防ぐため以下の順で処理する：
 
-当初から以下 7 言語で開発すること：
-
-| 言語 | コード |
-|---|---|
-| 日本語 | ja |
-| 英語 | en |
-| フランス語 | fr |
-| 中国語 | zh |
-| ロシア語 | ru |
-| スペイン語 | es |
-| アラビア語 | ar |
-
-> 開発者向け管理画面は日本語のみで可。
-
-## 環境判定
-
-- 環境判定（development / staging / production）を必ず実装し分岐できるようにすること
-- テスト可能にするため、開発環境では認証済み状態に分岐すること
+1. `clearInterval(pollRef.current)` — 同期的にポーリング停止
+2. `setReady(false)` — useEffect によるポーリング再起動を防止
+3. `api.resetDb()` → `api.createSession()` — DB リセット後に新セッションを作成
+4. データ再取得 → `setReady(true)` — ポーリング再開
 
 ---
 
-# サブエージェント設定（.claude/agents/）
+## 環境変数
 
-## pr-checker
+| 変数 | デフォルト | 説明 |
+|---|---|---|
+| `DATABASE_URL` | `smart_light.db` | SQLite ファイルパス |
+| `FRONTEND_URL` | `http://localhost:3000` | CORS 許可オリジン |
+| `ENV` | `production` | 環境識別子 |
+| `NEXT_PUBLIC_API_URL` | `http://localhost:8000` | フロントからのバックエンド URL |
 
-- すべての PR を日本語に翻訳すること（レビューはしない）
-- PR 本文に非エンジニア向けユーザーテスト手順を丁寧に書くこと
+---
 
-## tester
+## 開発ルール
 
-- 全 PR を対象として、PR 本文に書かれたユーザーテスト手順の実行スクリプトを作成すること
-- `TM.md` に記載されたテストを作成すること（Jest / RSpec 等）
-- テストファイルは `test/pr***/` に作成すること
-- テストの対象は開発サーバーとすること
+- **main ブランチでの作業禁止**（`src/*` 変更は PR 必須）
+- TDD：plan → red test → coding → green test
+- バックエンドテスト：pytest、フロントエンドテスト：Jest
+- アイコン：Font Awesome 使用（絵文字禁止）
+- `alert()` / `confirm()` / `prompt()` は使用禁止
+- フォールバック処理禁止・例外処理は必ず実装
+- PR 本文には非エンジニア向けユーザーテスト手順を記載
+- commit 前に `/security-review` を実行
