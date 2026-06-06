@@ -46,7 +46,8 @@ async def create_session(
         key="session_id",
         value=new_sid,
         httponly=True,
-        samesite="strict",
+        samesite="none",
+        secure=True,
         max_age=86400,
     )
     logger.info("New session created: %s", new_sid[:8])
