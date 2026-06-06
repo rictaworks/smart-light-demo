@@ -62,8 +62,8 @@ export default function Dashboard() {
       try {
         const dash = await api.getLight();
         setData(dash);
-      } catch (e) {
-        setError(String(e));
+      } catch {
+        // ポーリングエラーはサイレントに無視（リセット中の一時的な404など）
       }
     }, 1000);
     return () => {
