@@ -193,6 +193,21 @@ export default function Dashboard() {
   }
 
   return (
+    <>
+      {/* アンバーバナー */}
+      <div
+        style={{
+          backgroundColor: "#fbbf24",
+          color: "#1e293b",
+          textAlign: "center",
+          padding: "8px 16px",
+          fontSize: "0.85rem",
+          fontWeight: 500,
+        }}
+      >
+        これはデモ版です。データはサーバー再起動時にリセットされる場合があります。
+      </div>
+
     <div className="container">
       {/* ヘッダー */}
       <header
@@ -222,15 +237,31 @@ export default function Dashboard() {
             IoT 照明シミュレーター
           </p>
         </div>
-        <button
-          className="btn btn-secondary"
-          onClick={handleReset}
-          aria-label="DBリセット"
-          style={{ fontSize: "0.75rem" }}
-        >
-          <i className="fas fa-trash-restore" />
-          リセット
-        </button>
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <a
+            href="https://rictaworks.jp/#demos"
+            style={{
+              fontSize: "0.75rem",
+              color: "var(--text-muted)",
+              textDecoration: "none",
+              display: "flex",
+              alignItems: "center",
+              gap: 4,
+            }}
+          >
+            <i className="fas fa-arrow-left" />
+            デモ一覧へ
+          </a>
+          <button
+            className="btn btn-secondary"
+            onClick={handleReset}
+            aria-label="DBリセット"
+            style={{ fontSize: "0.75rem" }}
+          >
+            <i className="fas fa-trash-restore" />
+            リセット
+          </button>
+        </div>
       </header>
 
       {/* メインレイアウト */}
@@ -274,5 +305,33 @@ export default function Dashboard() {
         Smart Light Demo v0.1 &nbsp;|&nbsp; DB は毎日 JST 03:00 に自動リセットされます
       </footer>
     </div>
+
+      {/* 右下固定「ご相談はこちら」ボタン */}
+      <a
+        href="https://rictaworks.jp/"
+        target="_blank"
+        rel="noopener"
+        style={{
+          position: "fixed",
+          bottom: "1.5rem",
+          right: "1.5rem",
+          backgroundColor: "var(--accent)",
+          color: "#fff",
+          padding: "0.6rem 1.2rem",
+          borderRadius: "9999px",
+          textDecoration: "none",
+          fontSize: "0.85rem",
+          fontWeight: 600,
+          display: "flex",
+          alignItems: "center",
+          gap: 8,
+          boxShadow: "0 4px 12px rgba(0,0,0,0.25)",
+          zIndex: 1000,
+        }}
+      >
+        <i className="fas fa-comment-dots" />
+        ご相談はこちら
+      </a>
+    </>
   );
 }
