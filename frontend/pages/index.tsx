@@ -148,7 +148,11 @@ export default function Dashboard() {
 
   async function handleReset() {
     try {
-      // ポーリングを止めるために ready を false にする
+      // ポーリングを即座に停止（setReady は非同期再レンダリングなので直接 clearInterval する）
+      if (pollRef.current) {
+        clearInterval(pollRef.current);
+        pollRef.current = null;
+      }
       setReady(false);
       await api.resetDb();
       await api.createSession();
