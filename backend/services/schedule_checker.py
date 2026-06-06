@@ -1,4 +1,6 @@
-from datetime import datetime, time
+from datetime import datetime, time, timezone, timedelta
+
+JST = timezone(timedelta(hours=9))
 
 
 class ScheduleChecker:
@@ -15,7 +17,7 @@ class ScheduleChecker:
     def is_blackout_now(self) -> bool:
         if not self._from or not self._to:
             return False
-        now = datetime.now().time().replace(second=0, microsecond=0)
+        now = datetime.now(JST).time().replace(second=0, microsecond=0)
         if self._from <= self._to:
             return self._from <= now < self._to
         # 日をまたぐ（例: 22:00〜07:00）

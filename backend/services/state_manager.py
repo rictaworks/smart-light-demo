@@ -1,6 +1,8 @@
 import asyncio
 import logging
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
+
+JST = timezone(timedelta(hours=9))
 from typing import Callable, Optional
 from .sensor_service import SensorService
 from .light_controller import LightController
@@ -109,13 +111,13 @@ class SessionState:
         self.light.turn_on()
         self.light.adjust_brightness(avg_lux, self._target_lux)
         if was_off:
-            self.energy.record_on(datetime.now())
+            self.energy.record_on(datetime.now(JST))
         await self._persist_light()
 
     async def _do_turn_off(self) -> None:
         was_on = self.light.status == "on"
         self.light.turn_off()
-        now = datetime.now()
+        now = datetime.now(JST)
         if was_on:
             self.energy.record_off(now)
             await self._save_energy_log(now)
@@ -144,7 +146,7 @@ class SessionState:
         if self.wait_task and not self.wait_task.done():
             self.wait_task.cancel()
 
-        now = datetime.now()
+        now = datetime.now(JST)
         if status == "off" and self.light.status == "on":
             self.energy.record_off(now)
             await self._save_energy_log(now)
@@ -161,7 +163,7 @@ class SessionState:
 
     # ── スナップショット ─────────────────────────────────────────
     def get_energy_snapshot(self) -> dict:
-        now = datetime.now()
+        now = datetime.now(JST)
         return {
             "on_minutes": round(self.energy.current_on_minutes(now), 2),
             "kwh_used": self.energy.calc_kwh_used(now),
