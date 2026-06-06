@@ -149,9 +149,16 @@ export default function Dashboard() {
   async function handleReset() {
     try {
       await api.resetDb();
-      setData(DEFAULT_DASHBOARD);
-      setEnergyLogs([]);
-      setSettings(DEFAULT_SETTINGS);
+      // セッション削除後に新規セッションを作成して初期状態に戻す
+      await api.createSession();
+      const [dash, energy, cfg] = await Promise.all([
+        api.getLight(),
+        api.getEnergy(),
+        api.getSettings(),
+      ]);
+      setData(dash);
+      setEnergyLogs(energy.logs);
+      setSettings(cfg);
     } catch (e) {
       setError(String(e));
     }
