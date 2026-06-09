@@ -1,5 +1,6 @@
 import type { AppProps } from "next/app";
 import Head from "next/head";
+import Script from "next/script";
 import "@/styles/globals.css";
 
 export default function App({ Component, pageProps }: AppProps) {
@@ -15,6 +16,13 @@ export default function App({ Component, pageProps }: AppProps) {
           referrerPolicy="no-referrer"
         />
       </Head>
+      <Script src="https://www.googletagmanager.com/gtag/js?id=G-C04W1XKS16" strategy="afterInteractive" />
+      <Script id="ga-init" strategy="afterInteractive">{`
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-C04W1XKS16');
+      `}</Script>
       <Component {...pageProps} />
     </>
   );
