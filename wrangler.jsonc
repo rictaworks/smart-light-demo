@@ -1,0 +1,35 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "smart-light-demo",
+  "main": "worker/src/index.ts",
+  "compatibility_date": "2026-09-01",
+  "account_id": "9c5183bedab008ccef3581056752fa6f",
+
+  // フロント（frontend/ の next build による静的書き出し）を Workers Assets で配信する。
+  // /api/* だけは先に Worker（Hono）で処理する。
+  "assets": {
+    "directory": "./frontend/out",
+    "run_worker_first": ["/api/*"]
+  },
+
+  // D1 の database_id は未作成のためプレースホルダ。
+  // 作成後（wrangler d1 create smart_light_demo_db）に実 ID へ置き換える。
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "smart_light_demo_db",
+      "database_id": "REPLACE_WITH_D1_DATABASE_ID",
+      "migrations_dir": "migrations"
+    }
+  ],
+
+  // 日次リセット: JST 03:00 = UTC 18:00（前日）。
+  "triggers": {
+    "crons": ["0 18 * * *"]
+  },
+
+  "vars": {
+    "ENV": "production",
+    "FRONTEND_URL": "https://smart-light-demo.rictaworks.jp"
+  }
+}

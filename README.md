@@ -157,3 +157,29 @@ smart-light-demo/
 | クラス図 | [SPEC/class.md](./SPEC/class.md) |
 | 状態遷移図 | [SPEC/state.md](./SPEC/state.md) |
 | ユースケース図 | [SPEC/usecase.md](./SPEC/usecase.md) |
+
+---
+
+## Cloudflare 版：秘密と運用方針
+
+### 全体リセット（運用者専用）
+
+- `POST /api/admin/reset` は全セッションのデータを削除する。Cookie では実行できず、ヘッダー `X-Admin-Token` が Worker の secret `ADMIN_RESET_TOKEN` と一致したときだけ動く。
+- 本番での設定: `npx wrangler secret put ADMIN_RESET_TOKEN`（値はチャットやファイルに書かない）。
+- ローカルでの設定: `.dev.vars`（git 管理外）に `ADMIN_RESET_TOKEN=...` を書く。
+- `ADMIN_RESET_TOKEN` が未設定（または空）なら、このエンドポイントは無効（404）になる。
+- 画面の「リセット」ボタンは、そのセッションのデータだけを削除する（`POST /api/session/reset`）。押すと確認が出る。
+
+### セッション
+
+- セッション ID は HttpOnly・Secure・SameSite=Lax の Cookie でだけ渡し、本文には含めない。
+- 日次リセット（JST 03:00 = UTC 18:00、cron `0 18 * * *`）で全データを削除する。
+
+### 入力
+
+- 本文を持つ POST/PUT は `Content-Type: application/json` が必要。それ以外は 415 を返す。
+
+### レート制限（方針・未設定）
+
+- アプリ内ではレート制限を実装していない。Cloudflare の Rate Limiting Rules で行う（デプロイ時にダッシュボードで設定する）。
+- 目安: `/api/session` は 1 IP あたり 10 回/分、`/api/admin/reset` は 1 IP あたり 5 回/分（トークンの総当たり対策）、`/api/*` 全体は 1 IP あたり 300 回/分（画面は 1 秒ポーリングで約 60 回/分）。超えた場合は 429 を返す設定にする。

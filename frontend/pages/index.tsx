@@ -6,6 +6,7 @@ import LightControl from "@/components/LightControl";
 import BrightnessSlider from "@/components/BrightnessSlider";
 import EnergyChart from "@/components/EnergyChart";
 import ScheduleSettings from "@/components/ScheduleSettings";
+import ResetButton from "@/components/ResetButton";
 
 const DEFAULT_DASHBOARD: DashboardData = {
   light: { status: "off", brightness: 70, mode: "auto" },
@@ -154,7 +155,7 @@ export default function Dashboard() {
         pollRef.current = null;
       }
       setReady(false);
-      await api.resetDb();
+      await api.resetSession();
       await api.createSession();
       const [dash, energy, cfg] = await Promise.all([
         api.getLight(),
@@ -252,15 +253,7 @@ export default function Dashboard() {
             <i className="fas fa-arrow-left" />
             デモ一覧へ
           </a>
-          <button
-            className="btn btn-secondary"
-            onClick={handleReset}
-            aria-label="DBリセット"
-            style={{ fontSize: "0.75rem" }}
-          >
-            <i className="fas fa-trash-restore" />
-            リセット
-          </button>
+          <ResetButton onConfirm={handleReset} />
         </div>
       </header>
 
