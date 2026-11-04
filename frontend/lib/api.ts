@@ -1,6 +1,8 @@
 import type { DashboardData, EnergyLog, Settings } from "@/types";
 
-const BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
+// 本番は同一オリジン（Workers Assets と /api/* の Worker が同じドメイン）なので既定は空文字。
+// next dev で別ポートの wrangler dev を使うときだけ NEXT_PUBLIC_API_URL を設定する。
+const BASE = process.env.NEXT_PUBLIC_API_URL ?? "";
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const res = await fetch(`${BASE}${path}`, {
@@ -16,8 +18,8 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 }
 
 export const api = {
-  createSession: () =>
-    request<{ session_id: string }>("/api/session", { method: "POST" }),
+  // セッション ID は Cookie（HttpOnly）で受け取るので、本文は使わない。
+  createSession: () => request<{ ok: boolean }>("/api/session", { method: "POST" }),
 
   getLight: () => request<DashboardData>("/api/light"),
 
@@ -51,6 +53,6 @@ export const api = {
       body: JSON.stringify(settings),
     }),
 
-  resetDb: () =>
-    request<{ status: string }>("/api/admin/reset", { method: "POST" }),
+  // 画面のリセット: このセッションのデータだけを消す（全体リセットは運用者専用で、画面からは呼ばない）。
+  resetSession: () => request<{ ok: boolean }>("/api/session/reset", { method: "POST" }),
 };

@@ -27,6 +27,10 @@ node_modules/
 out/
 npm-debug.log*
 
+# Cloudflare Workers（wrangler のローカル状態・ローカル用の秘密）
+.wrangler/
+.dev.vars
+
 # SQLite
 *.db
 *.sqlite3
